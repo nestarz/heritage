@@ -25,7 +25,7 @@ heritage
 <script type="importmap" src="web_modules/import-map.json"></script>
 ```
 
-4. Optional. For now you may need to polyfill the [https://github.com/WICG/import-maps](import-maps) spec.
+4. Optional. For now you may need to polyfill the [WICG/import-maps](https://github.com/WICG/import-maps) spec.
 Here a working example:
 ```bash
 heritage add es-module-shims
