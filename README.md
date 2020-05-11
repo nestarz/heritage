@@ -13,7 +13,7 @@ yarn add -D @eliaspourquoi/heritage
 export PATH=$(yarn bin):$PATH
 ```
 
-3. Manage Dependencies, like Yarn and NPM...
+3. Manage Dependencies, feels like Yarn...
 ```bash
 # Add Dependencies
 heritage add react three
