@@ -34,7 +34,7 @@ Here a working example:
 <script defer src="web_modules/es-module-shims/0.4.6/es-module-shims.js"></script>
 <script type="importmap-shim" src="web_modules/import-map.json"></script>
 <script type="module-shim">
-  import React from "react";
+  import React from "react"; // If you have installed react for example...
 </script>
 ```
 
