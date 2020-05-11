@@ -6,18 +6,19 @@ ES 2020 Tiny Package Manager for the Web.
 1. Install Heritage
 ```bash
 yarn add -D @eliaspourquoi/heritage
+# Optional export PATH=$(yarn bin):$PATH
 ```
 
 3. Manage Dependencies, like Yarn and NPM...
 ```bash
 # Add Dependencies
-./node_modules/.bin/heritage add react three
+heritage add react three
 
 # Remove Dependencies
-./node_modules/.bin/heritage remove react@16.13.1
+heritage remove react@16.13.1
 
 # Install Dependencies
-./node_modules/.bin/heritage       
+heritage       
 ```
 
 4. Add the generated `import-map.json` to your `index.html`.
@@ -28,7 +29,7 @@ yarn add -D @eliaspourquoi/heritage
 5. Optional. For now you may need to polyfill the [https://github.com/WICG/import-maps](import-maps) spec.
 Here a working example:
 ```bash
-./node_modules/.bin/heritage add es-module-shims
+heritage add es-module-shims
 ```
 ```html
 <script defer src="web_modules/es-module-shims/0.4.6/es-module-shims.js"></script>
