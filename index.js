@@ -72,7 +72,6 @@ async function install(outputDir, { pkgName, pkgVersion, getPkg }) {
 
   const entrypoint = `./${pkgName}@v${pkgVersion}/`;
   const dependencies = await resolve([entrypoint]);
-  delete dependencies[entrypoint];
   Object.keys(dependencies).forEach((dependency) =>
     download(getPkg, outputDir, dependency)
   );
