@@ -1,0 +1,22 @@
+{
+  "name": "@eliaspourquoi/heritage",
+  "version": "0.0.1",
+  "author": "Elias Rhouzlane <elias.rhouzlane@gmail.com> (https://eliasrhouzlane.com)",
+  "license": "MIT",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "detective-es6": "^2.1.0",
+    "falafel": "^2.2.4",
+    "node-fetch": "^2.6.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "bin": {
+    "heritage": "node index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
