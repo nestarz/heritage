@@ -8,11 +8,17 @@ ES 2020 Tiny Package Manager for the Web
 yarn add -D @eliaspourquoi/heritage
 ```
 
-3. Add/Remove/Install Dependencies
+3. Managee Dependencies
 ```bash
-./node_modules/.bin/heritage add react
+# Add Dependencies
+./node_modules/.bin/heritage add react three
+
+# Remove Dependencies
 ./node_modules/.bin/heritage remove react@16.13.1
-./node_modules/.bin/heritage // or ./node_modules/.bin/heritage install
+
+# Install Dependencies from `webDependencies` field in `package.json`
+./node_modules/.bin/heritage        # OR
+./node_modules/.bin/heritage install
 ```
 
 4. Add the generated `import-map.json` to your `index.html`
