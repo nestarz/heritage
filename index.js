@@ -50,7 +50,7 @@ function pkgInfo(directory, { pkgName, pkgVersion, ...pkg }) {
     pkgVersion,
     pkgDir,
     pkgPath,
-    pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir), ''),
+    pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir), '/'),
     pkgRelativePath: path.join("/", path.relative(path.resolve(), pkgPath)),
   };
 }
