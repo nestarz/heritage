@@ -16,7 +16,7 @@ yarn add -D @eliaspourquoi/heritage
 # Remove Dependencies
 ./node_modules/.bin/heritage remove react@16.13.1
 
-# Install Dependencies
+# Install Dependencies from package.json
 ./node_modules/.bin/heritage       
 ```
 
