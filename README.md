@@ -1,25 +1,18 @@
 # heritage
-ES 2020 Package Manager for the Web
+ES 2020 Tiny Package Manager for the Web
 
 ## Use
 
-1. Install
-```
+1. Install Heritage
+```bash
 yarn add -D @eliaspourquoi/heritage
 ```
 
-2. (Will change) Manually add your dependencies in your package.json
-
-```
-"webDependencies": {
-  "three": "0.115.0",
-  "react": "16.13.1"
-},
-```
-
-3. Install Dependencies
-```
-./node_modules/.bin/heritage
+3. Add/Remove/Install Dependencies
+```bash
+./node_modules/.bin/heritage add react
+./node_modules/.bin/heritage remove react
+./node_modules/.bin/heritage install
 ```
 
 4. Add the generated `import-map.json` to your `index.html`
@@ -28,3 +21,8 @@ yarn add -D @eliaspourquoi/heritage
 ```
 
 That's all.
+
+## Information
+
+Heritage use `package.json` to register required packages under the `webDependencies` field.
+The `lock` file is the generated `import-map.json` used to manage imports by the browser. 

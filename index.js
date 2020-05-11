@@ -157,7 +157,7 @@ const add = (packages) =>
     .then((string) => JSON.parse(string))
     .then((packageJson) => {
       packageJson.webDependencies = Object.assign(
-        packageJson.webDependencies,
+        packageJson.webDependencies ?? {},
         ...packages
       );
       packages.forEach((pkg) => console.log("Add", pkg));
@@ -173,7 +173,9 @@ const remove = (packages) =>
     .then((string) => JSON.parse(string))
     .then((packageJson) => {
       packages.forEach((pkgName) => {
-        delete packageJson.webDependencies[pkgName];
+        if (pkgName in packageJson.webDependencies) {
+          delete packageJson.webDependencies[pkgName];
+        }
         console.log("Remove", pkgName);
       });
 
