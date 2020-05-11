@@ -110,7 +110,11 @@ async function installAll(outputDir, dependencies) {
 fs.promises
   .readFile(path.join(path.resolve(), "package.json"), "utf-8")
   .then((string) => JSON.parse(string))
-  .then(({ webDependencies }) =>
+  .then(({ webDependencies }) => {
+    if (webDependencies) return webDependencies;
+    throw Error("webDependencies is missing in package.json.");
+  })
+  .then((webDependencies) =>
     installAll(
       path.join(path.resolve(), "web_modules"),
       Object.entries(webDependencies).map(([pkgName, pkgVersion]) => ({
@@ -137,4 +141,5 @@ fs.promises
         },
       }))
     )
-  );
+  )
+  .catch(console.error);

@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.9.6.tgz#3b1bbb30dabe600cd72db58720998376ff653bc7"
   integrity sha512-AoeIEJn8vt+d/6+PXDRPaksYhnlbMIiejioBZvvMQsOjW/JYK6k/0dKnvvP3EhK5GfMBWDPtrxRtegWdAcdq9Q==
 
-"@eliaspourquoi/heritage@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@eliaspourquoi/heritage/-/heritage-0.0.1.tgz#fae64054edc1d4cae10d9e18cd6d7aa29cf982ca"
-  integrity sha512-5mRvfCXn0lg85iyVsm1pQW6AtcZptXZUKQ9msIU2a1UotqXnXPFWvDqCUUmXkdNPn0ZbqGh1m0pvmi9c23VYnQ==
+"@eliaspourquoi/heritage@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@eliaspourquoi/heritage/-/heritage-0.0.3.tgz#6524adfa77b02e14ca8a926ce1bd4745f7c607fc"
+  integrity sha512-vxtBJL64rHJj9ZG2BdeaxGYu3v4pc150o3L0a+sbWlG0E1I3/A+KLnoaSHOBJIyeviN+wg/ecvT+wsm0wfRcNQ==
   dependencies:
     detective-es6 "^2.1.0"
     falafel "^2.2.4"
