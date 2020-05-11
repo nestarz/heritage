@@ -20,9 +20,22 @@ yarn add -D @eliaspourquoi/heritage
 ./node_modules/.bin/heritage       
 ```
 
-4. Add the generated `import-map.json` to your `index.html`
+4. Add the generated `import-map.json` to your `index.html`.
 ```html
 <script type="importmap" src="web_modules/import-map.json"></script>
+```
+
+5. Optional. For now you may need to polyfill the [https://github.com/WICG/import-maps](import-maps) spec.
+Here a working example:
+```bash
+./node_modules/.bin/heritage add es-module-shims
+```
+```html
+<script defer src="web_modules/es-module-shims/0.4.6/es-module-shims.js"></script>
+<script type="importmap-shim" src="web_modules/import-map.json"></script>
+<script type="module-shim">
+  import React from "react";
+</script>
 ```
 
 That's all.
