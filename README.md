@@ -1,5 +1,5 @@
 # heritage
-ES 2020 Tiny Package Manager for the Web.
+Tiny Package Manager for the Web based on the [https://github.com/WICG/import-maps](import-maps) spec.
 
 ## Use
 
