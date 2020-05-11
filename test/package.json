@@ -5,13 +5,11 @@
   "license": "MIT",
   "webDependencies": {
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "es-module-shims": "0.4.6"
   },
-  "devDependencies": {
-    "@eliaspourquoi/heritage": "^0.0.3"
-  },
-  "scripts": {
-    "web-install": "node ./node_modules/@eliaspourquoi/heritage/index.js"
-  },
-  "dependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "@eliaspourquoi/heritage": "^0.0.5"
+  }
 }
