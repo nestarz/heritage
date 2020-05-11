@@ -6,7 +6,11 @@ ES 2020 Tiny Package Manager for the Web.
 1. Install Heritage
 ```bash
 yarn add -D @eliaspourquoi/heritage
-# Optional export PATH=$(yarn bin):$PATH
+```
+
+2. Optional. Source `./node_modules/.bin/`
+```
+export PATH=$(yarn bin):$PATH
 ```
 
 3. Manage Dependencies, like Yarn and NPM...
