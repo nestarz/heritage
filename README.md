@@ -1,5 +1,5 @@
 # heritage
-Tiny Package Manager for the Web based on the [https://github.com/WICG/import-maps](import-maps) spec.
+Tiny Package Manager for the Web based on the [https://github.com/WICG/import-maps](import-maps) spec. No lock-in.
 
 ## Use
 
