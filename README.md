@@ -44,4 +44,4 @@ That's all.
 
 Heritage use `package.json` to register required packages under the `webDependencies` field.
 The `lock` file is the generated `import-map.json` used to manage imports by the browser. 
-It uses the Pika CDN for the moment, but it is planned to let you configure which reegistry you would like to fetch your package.
+It uses the Pika CDN for the moment, but it is planned to let you configure which registry you would like to fetch your package.
