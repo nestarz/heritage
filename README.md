@@ -46,7 +46,8 @@ Heritage use `package.json` to register required packages under the `webDependen
 The `lock` file is the generated `import-map.json` used to manage imports by the browser. 
 It uses the Pika CDN for the moment, but it is planned to let you configure which registry you would like to fetch your package.
 
-To have the command `heritage` available you need to have `yarn bin`or `npm bin`in your `PATH`. Otherwis you need to use this command `./node_modules/.bin/heritage` from the root of your package.
+To have the command `heritage` available you need to have `yarn bin`or `npm bin` in your `PATH` like so:
 ```
 export PATH=$(yarn bin):$PATH
 ```
+Otherwise you need to use this command `./node_modules/.bin/heritage` from the root of your package.
