@@ -8,7 +8,7 @@ ES 2020 Tiny Package Manager for the Web.
 yarn add -D @eliaspourquoi/heritage
 ```
 
-2. Optional. Source `./node_modules/.bin/`
+2. Optional. Source `./node_modules/.bin/` to use `heritage` instead of `./node_modules/.bin/heritage`
 ```
 export PATH=$(yarn bin):$PATH
 ```
