@@ -1,13 +1,13 @@
 {
   "name": "@eliaspourquoi/heritage",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Elias Rhouzlane <elias.rhouzlane@gmail.com> (https://eliasrhouzlane.com)",
   "license": "MIT",
   "main": "index.js",
   "type": "module",
   "dependencies": {
     "detective-es6": "^2.1.0",
-    "falafel": "^2.2.4",
+    "falafel-promise": "^0.1.2",
     "node-fetch": "^2.6.0"
   },
   "scripts": {
