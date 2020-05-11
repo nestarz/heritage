@@ -67,7 +67,7 @@ async function getScope(getPkg, outputDir, [parentDependency, dependencies]) {
   };
 }
 
-async function install(outputDir, { pkgName, pkgVersion, getPkg }) {
+async function installOne(outputDir, { pkgName, pkgVersion, getPkg }) {
   const resolve = resolver(getPkg);
 
   const entrypoint = `./${pkgName}@v${pkgVersion}/`;
@@ -90,7 +90,9 @@ async function install(outputDir, { pkgName, pkgVersion, getPkg }) {
 async function installAll(outputDir, dependencies) {
   await fs.promises.rmdir(outputDir, { recursive: true });
   await fs.promises.mkdir(outputDir);
-  Promise.all(dependencies.map((dependency) => install(outputDir, dependency)))
+  Promise.all(
+    dependencies.map((dependency) => installOne(outputDir, dependency))
+  )
     .then((importMaps) => {
       fs.writeFileSync(
         path.join(outputDir, "import-map.json"),
@@ -106,39 +108,106 @@ async function installAll(outputDir, dependencies) {
     .catch(console.error);
 }
 
-fs.promises
-  .readFile(path.join(path.resolve(), "package.json"), "utf-8")
-  .then((string) => JSON.parse(string))
-  .then(({ webDependencies }) => {
-    if (webDependencies) return webDependencies;
-    throw Error("webDependencies is missing in package.json.");
-  })
-  .then((webDependencies) =>
-    installAll(
-      path.join(path.resolve(), "web_modules"),
-      Object.entries(webDependencies).map(([pkgName, pkgVersion]) => ({
-        pkgName,
-        pkgVersion,
-        base: "https://cdn.pika.dev/",
-        getPkg: (entrypoint, base = "https://cdn.pika.dev/") => {
-          const pikaPkgInfo = (url) => {
-            const [part1, part2] = url.split("@v");
-            const [pkgVersion, _] = part2.split("-");
-            const [pkgName] = part1.split("/").slice(-1);
-            return { pkgVersion, pkgName };
-          };
+const getPkg = (entrypoint, base = "https://cdn.pika.dev/") => {
+  const pikaPkgInfo = (url) => {
+    const [part1, part2] = url.split("@v");
+    const [pkgVersion, _] = part2.split("-");
+    const [pkgName] = part1.split("/").slice(-1);
+    return { pkgVersion, pkgName };
+  };
 
-          return fetch(new URL(entrypoint, base))
-            .then((response) => {
-              const importurl = response.headers.get("x-import-url");
-              return importurl ? fetch(new URL(importurl, base)) : response;
-            })
-            .then((response) => ({
-              getSource: () => response.text(),
-              ...pikaPkgInfo(response.url),
-            }));
-        },
-      }))
+  return fetch(new URL(entrypoint, base))
+    .then((response) => {
+      const importurl = response.headers.get("x-import-url");
+      return importurl ? fetch(new URL(importurl, base)) : response;
+    })
+    .then((response) => ({
+      getSource: () => response.text(),
+      ...pikaPkgInfo(response.url),
+    }))
+    .catch((err) => {
+      console.error(err);
+      throw Error(`Pika Package Malformed ${base}${entrypoint}`);
+    });
+};
+
+const packageJsonPath = path.join(path.resolve(), "package.json");
+const install = () =>
+  fs.promises
+    .readFile(packageJsonPath, "utf-8")
+    .then((string) => JSON.parse(string))
+    .then(({ webDependencies }) => {
+      !webDependencies
+        ? console.warn("webDependencies is missing in package.json.")
+        : installAll(
+            path.join(path.resolve(), "web_modules"),
+            Object.entries(webDependencies).map(([pkgName, pkgVersion]) => ({
+              pkgName,
+              pkgVersion,
+              base: "https://cdn.pika.dev/",
+              getPkg,
+            }))
+          );
+    })
+    .catch(console.error);
+
+const add = (packages) =>
+  fs.promises
+    .readFile(path.join(path.resolve(), "package.json"), "utf-8")
+    .then((string) => JSON.parse(string))
+    .then((packageJson) => {
+      packageJson.webDependencies = Object.assign(
+        packageJson.webDependencies,
+        ...packages
+      );
+      packages.forEach((pkg) => console.log("Add", pkg));
+      fs.promises.writeFile(
+        packageJsonPath,
+        JSON.stringify(packageJson, null, 2)
+      );
+    });
+
+const remove = (packages) =>
+  fs.promises
+    .readFile(path.join(path.resolve(), "package.json"), "utf-8")
+    .then((string) => JSON.parse(string))
+    .then((packageJson) => {
+      packages.forEach((pkgName) => {
+        delete packageJson.webDependencies[pkgName];
+        console.log("Remove", pkgName);
+      });
+
+      fs.promises.writeFile(
+        packageJsonPath,
+        JSON.stringify(packageJson, null, 2)
+      );
+    });
+
+const [command, ...packages] = process.argv.slice(2);
+
+const actions = {
+  [undefined]: install,
+  install,
+  remove: (packages) => remove(packages).then(install),
+  add: (packages) => {
+    Promise.all(
+      packages.map(async (arg) => {
+        const [pkgName, pkgVersion] = arg.split("@");
+        const entrypoint = `./${pkgName}/`;
+        return {
+          [pkgName]: pkgVersion ?? (await getPkg(entrypoint)).pkgVersion,
+        };
+      })
     )
-  )
-  .catch(console.error);
+      .then(add)
+      .then(install)
+      .catch(console.error);
+  },
+};
+
+if (command in actions) {
+  const action = actions[command];
+  action(packages);
+} else {
+  console.error("Error in command. Supported: ", Object.keys(actions));
+}
