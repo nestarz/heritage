@@ -1,15 +1,35 @@
 #!/usr/bin/env node
-import detective from "detective-es6";
-import falafel from "falafel";
+import falafel from "falafel-promise";
 import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
+
+const getDependencyLibrary = {
+  ImportDeclaration: (node) =>
+    node.importKind !== "type" && node?.source?.value,
+  ExportNamedDeclaration: (node) => node?.source?.value,
+  ExportAllDeclaration: (node) => node?.source?.value,
+  CallExpression: (node) =>
+    node.callee.type === "Import" &&
+    node.arguments.length &&
+    node.arguments[0].value,
+};
+
+async function detective(source) {
+  const dependencies = [];
+  await falafel(source, { sourceType: "module" }, ({ node }) => {
+    const getDependencyFn = getDependencyLibrary[node.type];
+    const dependency = getDependencyFn && getDependencyFn(node);
+    if (dependency) dependencies.push(dependency);
+  });
+  return dependencies;
+}
 
 function resolver(getPkg) {
   const findImports = async (entrypoint) => {
     const { getSource } = await getPkg(entrypoint);
     const source = await getSource();
-    return detective(source);
+    return await detective(source);
   };
   return async function resolve(dependency, res = {}) {
     if (!(dependency in res)) {
@@ -30,7 +50,7 @@ function pkgInfo(directory, { pkgName, pkgVersion, ...pkg }) {
     pkgVersion,
     pkgDir,
     pkgPath,
-    pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir)),
+    pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir), ''),
     pkgRelativePath: path.join("/", path.relative(path.resolve(), pkgPath)),
   };
 }
@@ -41,11 +61,12 @@ async function download(getPkg, outputDir, dependency) {
 
   const source = await getSource();
   const newSource = String(
-    falafel(source, { sourceType: "module" }, (node) => {
-      if (node.type === "ImportDeclaration") {
-        const string = node.source().split(" from")[1];
-        const { pkgName } = getPkg(string);
-        node.update(node.source().replace(string, ` "${pkgName}"`));
+    await falafel(source, { sourceType: "module" }, async ({ node, source, update }) => {
+      const getDependencyFn = getDependencyLibrary[node.type];
+      const dependency = getDependencyFn && getDependencyFn(node);
+      if (dependency) {
+        const { pkgName } = await getPkg(dependency);
+        update(source().replace(dependency, pkgName));
       }
     })
   );
@@ -108,7 +129,7 @@ async function installAll(outputDir, dependencies) {
     .catch(console.error);
 }
 
-const getPkg = (entrypoint, base = "https://cdn.pika.dev/") => {
+const getPikaPkg = (entrypoint, base = "https://cdn.pika.dev/") => {
   const pikaPkgInfo = (url) => {
     const [part1, part2] = url.split("@v");
     const [pkgVersion, _] = part2.split("-");
@@ -145,7 +166,7 @@ const install = () =>
               pkgName,
               pkgVersion,
               base: "https://cdn.pika.dev/",
-              getPkg,
+              getPkg: getPikaPkg,
             }))
           );
     })
@@ -197,7 +218,7 @@ const actions = {
         const [pkgName, pkgVersion] = arg.split("@");
         const entrypoint = `./${pkgName}/`;
         return {
-          [pkgName]: pkgVersion ?? (await getPkg(entrypoint)).pkgVersion,
+          [pkgName]: pkgVersion ?? (await getPikaPkg(entrypoint)).pkgVersion,
         };
       })
     )
