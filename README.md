@@ -8,7 +8,7 @@ ES 2020 Tiny Package Manager for the Web.
 yarn add -D @eliaspourquoi/heritage
 ```
 
-3. Manage Dependencies
+3. Manage Dependencies, like Yarn, NPM or Snowpack...
 ```bash
 # Add Dependencies
 ./node_modules/.bin/heritage add react three
@@ -16,7 +16,7 @@ yarn add -D @eliaspourquoi/heritage
 # Remove Dependencies
 ./node_modules/.bin/heritage remove react@16.13.1
 
-# Install Dependencies from package.json
+# Install Dependencies
 ./node_modules/.bin/heritage       
 ```
 
