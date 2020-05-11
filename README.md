@@ -11,8 +11,8 @@ yarn add -D @eliaspourquoi/heritage
 3. Add/Remove/Install Dependencies
 ```bash
 ./node_modules/.bin/heritage add react
-./node_modules/.bin/heritage remove react
-./node_modules/.bin/heritage install
+./node_modules/.bin/heritage remove react@16.13.1
+./node_modules/.bin/heritage // or ./node_modules/.bin/heritage install
 ```
 
 4. Add the generated `import-map.json` to your `index.html`
