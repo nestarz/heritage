@@ -11,7 +11,7 @@ yarn add -D @eliaspourquoi/heritage
 2. Manage Dependencies, feels like Yarn...
 ```bash
 # Add Dependencies
-heritage add vue@3.0.0-beta.13 three
+heritage add vue@3.0.0-beta.10 three
 
 # Remove Dependencies
 heritage remove vue
