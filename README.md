@@ -11,10 +11,10 @@ yarn add -D @eliaspourquoi/heritage
 2. Manage Dependencies, feels like Yarn...
 ```bash
 # Add Dependencies
-heritage add react three
+heritage add vue@3.0.0-beta.13 three
 
 # Remove Dependencies
-heritage remove react@16.13.1
+heritage remove vue
 
 # Install Dependencies
 heritage       
