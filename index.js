@@ -32,7 +32,7 @@ const getDependencyLibrary = {
 };
 
 async function detective(source) {
-  const ast = acorn.parse(source, { sourceType: "module" });
+  const ast = acorn.parse(source, { sourceType: "module", ecmaVersion: 11 });
   const nodes = walk({ node: ast });
 
   return Array.from(nodes)
@@ -78,7 +78,7 @@ async function download(getPkg, outputDir, dependency) {
   const { pkgDir, pkgPath } = pkgInfo(outputDir, { pkgName, pkgVersion });
 
   const source = await getSource();
-  const ast = acorn.parse(source, { sourceType: "module" });
+  const ast = acorn.parse(source, { sourceType: "module", ecmaVersion: 11 });
   const nodes = walk({ node: ast });
 
   const newSource = (
