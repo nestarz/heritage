@@ -1,8 +1,24 @@
 #!/usr/bin/env node
-import falafel from "falafel-promise";
-import fetch from "node-fetch";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
+
+import acorn from "acorn";
+import fetch from "node-fetch";
+
+const isNode = (node) => typeof node.type === "string";
+
+const getChilds = (node) =>
+  Object.keys(node)
+    .filter((key) => node[key] && key !== "parent")
+    .flatMap((key) => node[key])
+    .filter(isNode);
+
+function* walk({ node, parent } = {}) {
+  for (const child of getChilds(node)) {
+    yield* walk({ node: child, parent: node });
+  }
+  yield { node, parent };
+}
 
 const getDependencyLibrary = {
   ImportDeclaration: (node) =>
@@ -16,13 +32,15 @@ const getDependencyLibrary = {
 };
 
 async function detective(source) {
-  const dependencies = [];
-  await falafel(source, { sourceType: "module" }, ({ node }) => {
-    const getDependencyFn = getDependencyLibrary[node.type];
-    const dependency = getDependencyFn && getDependencyFn(node);
-    if (dependency) dependencies.push(dependency);
-  });
-  return dependencies;
+  const ast = acorn.parse(source, { sourceType: "module" });
+  const nodes = walk({ node: ast });
+
+  return Array.from(nodes)
+    .map(({ node }) => {
+      const getDependencyFn = getDependencyLibrary[node.type];
+      return getDependencyFn && getDependencyFn(node);
+    })
+    .filter((dependency) => dependency);
 }
 
 function resolver(getPkg) {
@@ -43,14 +61,14 @@ function resolver(getPkg) {
 
 function pkgInfo(directory, { pkgName, pkgVersion, ...pkg }) {
   const pkgDir = path.join(directory, pkgName, pkgVersion, "/");
-  const pkgPath = path.join(pkgDir, `${pkgName}.js`);
+  const pkgPath = path.join(pkgDir, `${pkgName.split("/").slice(-1)}.js`);
   return {
     ...pkg,
     pkgName,
     pkgVersion,
     pkgDir,
     pkgPath,
-    pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir), '/'),
+    pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir), "/"),
     pkgRelativePath: path.join("/", path.relative(path.resolve(), pkgPath)),
   };
 }
@@ -60,18 +78,32 @@ async function download(getPkg, outputDir, dependency) {
   const { pkgDir, pkgPath } = pkgInfo(outputDir, { pkgName, pkgVersion });
 
   const source = await getSource();
-  const newSource = String(
-    await falafel(source, { sourceType: "module" }, async ({ node, source, update }) => {
+  const ast = acorn.parse(source, { sourceType: "module" });
+  const nodes = walk({ node: ast });
+
+  const newSource = (
+    await Array.from(nodes).reduce(async (chunksPromise, { node }) => {
+      const chunks = await chunksPromise;
       const getDependencyFn = getDependencyLibrary[node.type];
       const dependency = getDependencyFn && getDependencyFn(node);
       if (dependency) {
         const { pkgName } = await getPkg(dependency);
-        update(source().replace(dependency, pkgName));
+
+        chunks[node.start] = chunks
+          .slice(node.start, node.end)
+          .join("")
+          .replace(dependency, pkgName);
+        for (let i = node.start + 1; i < node.end; i++) {
+          chunks[i] = "";
+        }
       }
-    })
-  );
-  await fs.promises.mkdir(pkgDir, { recursive: true });
-  fs.writeFileSync(pkgPath, newSource);
+
+      return chunks;
+    }, Promise.resolve(source.split("")))
+  ).join("");
+
+  await fs.mkdir(pkgDir, { recursive: true });
+  fs.writeFile(pkgPath, newSource);
 }
 
 async function getScope(getPkg, outputDir, [parentDependency, dependencies]) {
@@ -109,19 +141,22 @@ async function installOne(outputDir, { pkgName, pkgVersion, getPkg }) {
 }
 
 async function installAll(outputDir, dependencies) {
-  await fs.promises.rmdir(outputDir, { recursive: true });
-  await fs.promises.mkdir(outputDir);
+  await fs.rmdir(outputDir, { recursive: true });
+  await fs.mkdir(outputDir);
   Promise.all(
     dependencies.map((dependency) => installOne(outputDir, dependency))
   )
     .then((importMaps) => {
-      fs.writeFileSync(
+      fs.writeFile(
         path.join(outputDir, "import-map.json"),
         JSON.stringify(
-          importMaps.reduce((importMap, { imports, scopes }) => ({
-            imports: { ...importMap.imports, ...imports },
-            scopes: { ...importMap.scopes, ...scopes },
-          }))
+          importMaps.reduce(
+            (importMap, { imports, scopes }) => ({
+              imports: { ...importMap.imports, ...imports },
+              scopes: { ...importMap.scopes, ...scopes },
+            }),
+            {}
+          )
         )
       );
       console.log("Success.");
@@ -131,9 +166,7 @@ async function installAll(outputDir, dependencies) {
 
 const getPikaPkg = (entrypoint, base = "https://cdn.pika.dev/") => {
   const pikaPkgInfo = (url) => {
-    const [part1, part2] = url.split("@v");
-    const [pkgVersion, _] = part2.split("-");
-    const [pkgName] = part1.split("/").slice(-1);
+    const [_, pkgName, pkgVersion] = /\/-\/(.*)@v(.*)-(.*)\/(.*)/.exec(url);
     return { pkgVersion, pkgName };
   };
 
@@ -142,10 +175,12 @@ const getPikaPkg = (entrypoint, base = "https://cdn.pika.dev/") => {
       const importurl = response.headers.get("x-import-url");
       return importurl ? fetch(new URL(importurl, base)) : response;
     })
-    .then((response) => ({
-      getSource: () => response.text(),
-      ...pikaPkgInfo(response.url),
-    }))
+    .then((response) => {
+      return {
+        getSource: () => response.text(),
+        ...pikaPkgInfo(new URL(response.url).pathname),
+      };
+    })
     .catch((err) => {
       console.error(err);
       throw Error(`Pika Package Malformed ${base}${entrypoint}`);
@@ -154,7 +189,7 @@ const getPikaPkg = (entrypoint, base = "https://cdn.pika.dev/") => {
 
 const packageJsonPath = path.join(path.resolve(), "package.json");
 const install = () =>
-  fs.promises
+  fs
     .readFile(packageJsonPath, "utf-8")
     .then((string) => JSON.parse(string))
     .then(({ webDependencies }) => {
@@ -172,39 +207,37 @@ const install = () =>
     })
     .catch(console.error);
 
-const add = (packages) =>
-  fs.promises
+const modifyPackageJsonWebDependencies = (callback) =>
+  fs
     .readFile(path.join(path.resolve(), "package.json"), "utf-8")
     .then((string) => JSON.parse(string))
-    .then((packageJson) => {
-      packageJson.webDependencies = Object.assign(
-        packageJson.webDependencies ?? {},
-        ...packages
-      );
-      packages.forEach((pkg) => console.log("Add", pkg));
-      fs.promises.writeFile(
-        packageJsonPath,
-        JSON.stringify(packageJson, null, 2)
-      );
-    });
+    .then((packageJson) =>
+      Object.assign(packageJson, {
+        webDependencies: callback(packageJson?.webDependencies ?? {}),
+      })
+    )
+    .then((packageJson) =>
+      fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
+    );
+
+const add = (packages) =>
+  modifyPackageJsonWebDependencies((webDependencies) =>
+    Object.assign(webDependencies ?? {}, ...packages)
+  );
+
+function omit(keys, object) {
+  if (!keys.length) return object;
+  const { [keys.pop()]: omitted, ...rest } = object;
+  return omit(keys, rest);
+}
 
 const remove = (packages) =>
-  fs.promises
-    .readFile(path.join(path.resolve(), "package.json"), "utf-8")
-    .then((string) => JSON.parse(string))
-    .then((packageJson) => {
-      packages.forEach((pkgName) => {
-        if (pkgName in packageJson.webDependencies) {
-          delete packageJson.webDependencies[pkgName];
-        }
-        console.log("Remove", pkgName);
-      });
-
-      fs.promises.writeFile(
-        packageJsonPath,
-        JSON.stringify(packageJson, null, 2)
-      );
-    });
+  modifyPackageJsonWebDependencies((webDependencies) =>
+    omit(
+      packages.map(({ pkgName }) => pkgName),
+      webDependencies
+    )
+  );
 
 const [command, ...packages] = process.argv.slice(2);
 
@@ -214,8 +247,7 @@ const actions = {
   remove: (packages) => remove(packages).then(install),
   add: (packages) => {
     Promise.all(
-      packages.map(async (arg) => {
-        const [pkgName, pkgVersion] = arg.split("@");
+      packages.map(async ({ pkgName, pkgVersion }) => {
         const entrypoint = `./${pkgName}/`;
         return {
           [pkgName]: pkgVersion ?? (await getPikaPkg(entrypoint)).pkgVersion,
@@ -228,9 +260,17 @@ const actions = {
   },
 };
 
+const formatCommandPkg = (pkg) => {
+  const [_, pkgName, pkgVersion] =
+    !pkg.includes("@") || (pkg.startsWith("@") && pkg.match(/@/g).length === 1)
+      ? [null, pkg, null]
+      : /(.*)@(.*)/.exec(pkg);
+  return { pkgName, pkgVersion };
+};
+
 if (command in actions) {
   const action = actions[command];
-  action(packages);
+  action(packages?.map(formatCommandPkg));
 } else {
   console.error("Error in command. Supported: ", Object.keys(actions));
 }
