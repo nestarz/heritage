@@ -1,12 +1,13 @@
 {
   "name": "@eliaspourquoi/heritage",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "author": "Elias Rhouzlane <elias.rhouzlane@gmail.com> (https://eliasrhouzlane.com)",
   "license": "MIT",
   "main": "index.js",
   "type": "module",
   "dependencies": {
     "acorn": "^7.2.0",
+    "mem": "^6.1.0",
     "node-fetch": "^2.6.0"
   },
   "scripts": {
