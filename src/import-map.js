@@ -51,7 +51,7 @@ export const saveImportMap = async ({
         .then((importMapJson) =>
           fs.writeFile(
             pkgImportMapPath,
-            JSON.stringify(deepMerge(importMapJson, pkgImportMap))
+            JSON.stringify(deepMerge(importMapJson, pkgImportMap), null, 2)
           )
         )
     )
@@ -86,8 +86,8 @@ export const getImportMapDependencies = async ({
                     .includes(dependency)
                 )
           )
-          .filter(([pkgImportName]) =>
-            !Object.keys(imports).includes(pkgImportName)
+          .filter(
+            ([pkgImportName]) => !Object.keys(imports).includes(pkgImportName)
           )
           .map(([pkgImportName, pkgRelativePath]) => ({
             pkgImportName,
@@ -138,7 +138,7 @@ export const removeImportMapDependencies = async ({
       }))
       .then((importMapJson) =>
         fs
-          .writeFile(pkgImportMapPath, JSON.stringify(importMapJson))
+          .writeFile(pkgImportMapPath, JSON.stringify(importMapJson, null, 2))
           .then(() => importMapJson)
       )
   ),
