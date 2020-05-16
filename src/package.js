@@ -63,10 +63,11 @@ export const getPkgImportName = ({ pkgName, pkgTarget, ...pkg }) => {
   };
 };
 
-export const getPkgLocalStorageInfo = async ({
+export const getPkgLocalStorageInfo = ({
   pkgName,
   pkgTarget,
   pkgVersion,
+  pkgParent,
   ...pkg
 }) => {
   const pkgOutputDir = path.join(path.resolve(), "web_modules");
@@ -77,6 +78,7 @@ export const getPkgLocalStorageInfo = async ({
   );
   return {
     ...pkg,
+    pkgParent: pkgParent ? getPkgLocalStorageInfo(pkgParent) : pkgParent,
     pkgName,
     pkgTarget,
     pkgVersion,
@@ -128,22 +130,25 @@ export const getPkgChildPkgs = async ({
     ...(
       await Promise.all(
         Object.entries(pkgChildDependenciesEntrypoints).map(
-          async ([pkgEntrypoint, childEntrypoints]) => [
-            {
+          async ([pkgEntrypoint, childEntrypoints]) => {
+            const pkgChildParent = {
               pkgRegistry,
               pkgParent,
               pkgEntrypoint,
               ...(await pkgRegistry.resolveImport(pkgEntrypoint)),
-            },
-            ...(await Promise.all(
-              childEntrypoints.map(async (pkgEntrypoint) => ({
-                pkgRegistry,
-                pkgParent,
-                pkgEntrypoint,
-                ...(await pkgRegistry.resolveImport(pkgEntrypoint)),
-              }))
-            )),
-          ]
+            };
+            return [
+              pkgChildParent,
+              ...(await Promise.all(
+                childEntrypoints.map(async (pkgEntrypoint) => ({
+                  pkgRegistry,
+                  pkgParent: pkgChildParent,
+                  pkgEntrypoint,
+                  ...(await pkgRegistry.resolveImport(pkgEntrypoint)),
+                }))
+              )),
+            ];
+          }
         )
       )
     ).flat(),
@@ -231,12 +236,15 @@ const rmEmptyParentDirectories = (directory, max = path.resolve()) =>
     }
     return [];
   });
-  
+
 export const removePkgFiles = async ({ pkgPath, pkgDir, ...pkg }) => ({
   ...pkg,
   pkgPath,
   pkgDir,
   pkgFilesRemoved: await syncIO.dispatch(() =>
-    fs.unlink(pkgPath).then(() => rmEmptyParentDirectories(pkgDir)).catch(() => [])
+    fs
+      .unlink(pkgPath)
+      .then(() => rmEmptyParentDirectories(pkgDir))
+      .catch(() => [])
   ),
 });
