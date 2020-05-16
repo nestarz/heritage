@@ -49,8 +49,7 @@ That's all.
 ## Information
 
 Heritage use `package.json` to register required packages under the `webDependencies` field, exactly like Snowpack.
-The `lock` file is the generated `import-map.json` used to manage imports by the browser. 
-Default use of the the Pika CDN and fallback to Unpkg if target not found, it is planned to let you configure to any registry you would like to fetch your package.
+The `lock` file is the generated `import-map.json` used to manage imports by the browser. Default use of the the Pika CDN and fallback to Unpkg if target not found.
 
 To have the command `heritage` available you need to have `yarn bin`or `npm bin` in your `PATH` like so:
 ```
@@ -64,17 +63,17 @@ Place a `heritage.config.js` at the root of your project using this API:
 
 ```js
 module.exports = [{
-    registryName<String>,
-    entrypoint<Function>: (name: String, target: String, version: String) => String,
-    resolveImport<Function>: (importValue: String) => <Object {
-      pkgName<String>,
-      pkgTarget<String>,
-      pkgVersion<String>,
-    }>,
-    exists<Function>: (name: String, target: String, version: String) => <Boolean>,
-    version<Function>: (name: String, target: String, version: String) => <String>,
-    source<Function>: (entrypoint: String) => <String>,
-  },
-  ...
+  registryName<String>,
+  entrypoint<Function>: (name: String, target: String, version: String) => String,
+  resolveImport<Function>: (importValue: String) => <Object {
+    pkgName<String>,
+    pkgTarget<String>,
+    pkgVersion<String>,
+  }>,
+  exists<Function>: (name: String, target: String, version: String) => <Boolean>,
+  version<Function>: (name: String, target: String, version: String) => <String>,
+  source<Function>: (entrypoint: String) => <String>,
+ },
+ ...
 ];
 ```
