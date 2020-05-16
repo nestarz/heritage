@@ -12,6 +12,7 @@ export const getImportMap = ({
   ...pkg,
   pkgImportName,
   pkgRelativePath,
+  pkgRelativeDir,
   pkgParent,
   pkgImportMap: {
     imports: pkgParent ? {} : { [pkgImportName]: pkgRelativePath },
@@ -99,11 +100,11 @@ export const getImportMapDependencies = async ({
       )),
     {
       ...pkg,
-      pkgImportMapPath,
-      pkgRelativeDir,
       pkgName,
       pkgTarget,
       pkgVersion,
+      pkgImportMapPath,
+      pkgRelativeDir,
     },
   ];
 };
@@ -116,6 +117,10 @@ export const removeImportMapDependencies = async ({
   ...pkg
 }) => ({
   ...pkg,
+  pkgImportMapPath,
+  pkgRelativePath,
+  pkgRelativeDir,
+  pkgImportName,
   pkgRemovedImportMapDependencies: await syncIO.dispatch(() =>
     fs
       .readFile(pkgImportMapPath, "utf-8")

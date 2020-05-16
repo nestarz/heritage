@@ -77,15 +77,15 @@ export const getPkgLocalStorageInfo = async ({
   );
   return {
     ...pkg,
-    pkgOutputDir,
     pkgName,
     pkgTarget,
     pkgVersion,
-    pkgImportMapPath: path.join(pkgOutputDir, "import-map.json"),
+    pkgOutputDir,
     pkgDir,
     pkgPath,
     pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir), "/"),
     pkgRelativePath: path.join("/", path.relative(path.resolve(), pkgPath)),
+    pkgImportMapPath: path.join(pkgOutputDir, "import-map.json"),
   };
 };
 
@@ -130,15 +130,15 @@ export const getPkgChildPkgs = async ({
         Object.entries(pkgChildDependenciesEntrypoints).map(
           async ([pkgEntrypoint, childEntrypoints]) => [
             {
-              pkgParent,
               pkgRegistry,
+              pkgParent,
               pkgEntrypoint,
               ...(await pkgRegistry.resolveImport(pkgEntrypoint)),
             },
             ...(await Promise.all(
               childEntrypoints.map(async (pkgEntrypoint) => ({
-                pkgParent,
                 pkgRegistry,
+                pkgParent,
                 pkgEntrypoint,
                 ...(await pkgRegistry.resolveImport(pkgEntrypoint)),
               }))
@@ -157,6 +157,7 @@ export const getSourceFiles = async ({
 }) => ({
   ...pkg,
   pkgRegistry,
+  pkgEntrypoint,
   pkgSource: await pkgRegistry.source(pkgEntrypoint),
 });
 
@@ -187,6 +188,7 @@ export const updateSourceDependencies = async ({
   ...pkg
 }) => ({
   ...pkg,
+  pkgRegistry,
   pkgSource: await asyncUpdateDependencies(
     pkgSource,
     async (dependency) =>

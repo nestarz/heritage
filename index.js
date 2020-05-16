@@ -18,14 +18,14 @@ import {
   addToWebDependencies,
   removeFromWebDependencies,
   getWebDependenciesPkgs,
-} from "./src/packageJson.js";
+} from "./src/package-json.js";
 
 import {
   getImportMap,
   saveImportMap,
   getImportMapDependencies,
   removeImportMapDependencies,
-} from "./src/importMap.js";
+} from "./src/import-map.js";
 
 import { formatPkgCommand } from "./src/format.js";
 import { asyncMap } from "./src/utils.js";
