@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { Mutex } from "./utils.js";
+import { splitNameTarget, mergeNameTarget } from "./format.js";
 
 const packageJsonPath = path.join(path.resolve(), "package.json");
 
@@ -18,21 +19,40 @@ const modifyWebDependencies = (callback) =>
       .then((packageJson) =>
         fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
       )
+      .then(() => true)
   );
 
-export const addToWebDependencies = ({ pkgName, pkgTarget, pkgVersion }) =>
-  modifyWebDependencies((webDependencies) => ({
-    ...webDependencies,
-    [`${pkgName}${pkgTarget ? `/${pkgTarget}` : ""}`]: pkgVersion,
-  }));
+export const addToWebDependencies = async ({
+  pkgName,
+  pkgTarget,
+  pkgVersion,
+  ...pkg
+}) => ({
+  ...pkg,
+  pkgName,
+  pkgTarget,
+  pkgVersion,
+  pkgAddedToPackageJsonWebDependencies: await modifyWebDependencies(
+    (webDependencies) => ({
+      ...webDependencies,
+      [mergeNameTarget(pkgName, pkgTarget)]: pkgVersion,
+    })
+  ),
+});
 
-export const removeFromWebDependencies = ({ pkgName, pkgTarget }) =>
-  modifyWebDependencies(
-    ({
-      [`${pkgName}${pkgTarget ? `/${pkgTarget}` : ""}`]: _,
-      ...webDependencies
-    }) => webDependencies
-  );
+export const removeFromWebDependencies = async ({
+  pkgName,
+  pkgTarget,
+  ...pkg
+}) => ({
+  ...pkg,
+  pkgName,
+  pkgTarget,
+  pkgRemovedFromPackageJsonWebDependencies: await modifyWebDependencies(
+    ({ [mergeNameTarget(pkgName, pkgTarget)]: _, ...webDependencies }) =>
+      webDependencies
+  ),
+});
 
 export const getWebDependenciesPkgs = async () =>
   syncIO.dispatch(() =>

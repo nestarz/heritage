@@ -9,6 +9,9 @@ export const splitNameTarget = (pkgNameTarget) => {
   return { pkgName, pkgTarget };
 };
 
+export const mergeNameTarget = (pkgName, pkgTarget) =>
+  `${pkgName}${pkgTarget ? `/${pkgTarget}` : ""}`;
+
 export const formatPkgCommand = (str) => {
   const [_, pkgNameTarget, pkgVersion] =
     !str.includes("@") || (str.startsWith("@") && str.match(/@/g).length === 1)
