@@ -60,20 +60,20 @@ Otherwise you need to use this command `./node_modules/.bin/heritage` from the r
 
 
 ## Custom Registry
-Place a heritage.config.js at the root of your project using this API: 
+Place a `heritage.config.js` at the root of your project using this API: 
 
 ```js
 module.exports = [{
-    name<String>,
-    entrypoint<Function>: (name, target, version) => String,
-    resolveImport<Function>: (importValue) => ({
-      pkgName: String,
-      pkgTarget: String,
-      pkgVersion: String,
-    }),
-    exists<Function>: (name, target, version) => Boolean,
-    version<Function>: (name, target, version) => String,
-    source<Function>: (entrypoint) => String,
+    registryName<String>,
+    entrypoint<Function>: (name: String, target: String, version: String) => String,
+    resolveImport<Function>: (importValue: String) => <Object {
+      pkgName<String>,
+      pkgTarget<String>,
+      pkgVersion<String>,
+    }>,
+    exists<Function>: (name: String, target: String, version: String) => <Boolean>,
+    version<Function>: (name: String, target: String, version: String) => <String>,
+    source<Function>: (entrypoint: String) => <String>,
   },
   ...
 ];
