@@ -1,9 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-import mem from "mem";
-
-import { userInput, findAsync, Mutex } from "./utils.js";
+import { mem, userInput, findAsync, Mutex } from "./utils.js";
 import { asyncUpdateDependencies } from "./walker.js";
 
 import pikaRegistry from "./registries/pika.js";

@@ -3,7 +3,7 @@ import readline from "readline";
 export class Mutex {
   mutex = Promise.resolve();
   lock() {
-    let begin = (unlock) => {};
+    let begin = () => {};
     this.mutex = this.mutex.then(() => {
       return new Promise(begin);
     });
@@ -98,4 +98,13 @@ export const userInput = async (choices) => {
       });
     }
   });
+};
+
+export const mem = (fn) => {
+  let cache = {};
+  let key;
+  return (...args) => {
+    key = JSON.stringify(args);
+    return cache[key] || (cache[key] = fn.call(null, ...args));
+  };
 };

@@ -1,6 +1,6 @@
 import path from "path";
 import fetch from "node-fetch";
-import mem from "mem";
+import { mem } from "../utils.js";
 
 const pikaFetch = mem((url, base = "https://cdn.pika.dev/") => {
   const pikaPkgInfo = (url) => {

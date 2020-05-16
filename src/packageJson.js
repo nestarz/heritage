@@ -34,7 +34,7 @@ export const removeFromWebDependencies = ({ pkgName, pkgTarget }) =>
     }) => webDependencies
   );
 
-export function getWebDependenciesPkgs() {
+export const getWebDependenciesPkgs = async () =>
   syncIO.dispatch(() =>
     fs
       .readFile(packageJsonPath, "utf-8")
@@ -42,7 +42,7 @@ export function getWebDependenciesPkgs() {
       .then(({ webDependencies }) => {
         if (!webDependencies) {
           console.warn("webDependencies is missing in package.json.");
-          return;
+          return [];
         }
         return Object.entries(webDependencies).map(
           ([pkgNameTarget, pkgVersion]) => ({
@@ -52,4 +52,3 @@ export function getWebDependenciesPkgs() {
         );
       })
   );
-}
