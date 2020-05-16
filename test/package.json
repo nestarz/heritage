@@ -4,9 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "webDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "es-module-shims": "0.4.6"
+    "three/examples/jsm/loaders/GLTFLoader.js": "0.116.1",
+    "@vue/reactivity": "3.0.0-beta.12",
+    "three": "0.116.1",
+    "react": "16.13.1"
   },
   "devDependencies": {},
   "dependencies": {
