@@ -17,7 +17,7 @@ yarn add -D @eliaspourquoi/heritage
 2. Manage Dependencies, feels like Yarn...
 ```bash
 # Add Dependencies
-heritage add vue@3.0.0-beta.10 three
+heritage add three three/examples/jsm/loaders/GLTFLoader.js vue@3.0.0-beta.10 react react-dom es-module-shims
 
 # Remove Dependencies
 heritage remove vue
@@ -50,7 +50,7 @@ That's all.
 
 Heritage use `package.json` to register required packages under the `webDependencies` field, exactly like Snowpack.
 The `lock` file is the generated `import-map.json` used to manage imports by the browser. 
-It uses the Pika CDN for the moment, but it is planned to let you configure which registry you would like to fetch your package.
+Default use of the the Pika CDN and fallback to Unpkg if target not found, it is planned to let you configure to any registry you would like to fetch your package.
 
 To have the command `heritage` available you need to have `yarn bin`or `npm bin` in your `PATH` like so:
 ```
