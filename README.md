@@ -77,3 +77,4 @@ module.exports = [{
  ...
 ];
 ```
+You can see the Pika Registry Resolver here https://github.com/nestarz/heritage/blob/master/src/registries/pika.js
