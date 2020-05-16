@@ -1,7 +1,7 @@
 # heritage
 Tiny Package Manager for the Web based on the [WICG/import-maps](https://github.com/WICG/import-maps) spec. No lock-in.
 
-- Depends only on **two** packages, `acorn ` for AST parsing and  `node-fetch` to request the package.
+- Depends only on **two** packages, `acorn` for AST parsing and  `node-fetch` to request packages.
 - Customize to any registry, CDN or filesystems... It's up to you
 - Default to Pika and Unpkg registries
 - Only retrive ES6 browser compatible assets and modules
