@@ -85,8 +85,8 @@ export const getPkgLocalStorageInfo = ({
     pkgOutputDir,
     pkgDir,
     pkgPath,
-    pkgRelativeDir: path.join("/", path.relative(path.resolve(), pkgDir), "/"),
-    pkgRelativePath: path.join("/", path.relative(path.resolve(), pkgPath)),
+    pkgRelativeDir: "./" + path.join(path.relative(pkgOutputDir, pkgDir), "/"),
+    pkgRelativePath: "./" + path.relative(pkgOutputDir, pkgPath),
     pkgImportMapPath: path.join(pkgOutputDir, "import-map.json"),
   };
 };
