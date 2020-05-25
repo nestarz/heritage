@@ -6,7 +6,7 @@ Tiny Package Manager for the Web based on the [WICG/import-maps](https://github.
 - Default to Pika and Unpkg registries
 - Only retrive ES6 browser compatible assets and modules
 - Easy-to-use
-- *(Soon)* Optional TypeScript definition resolution
+- TypeScript definition resolution can be achieve using yarn/npm
 
 ## Use
 
