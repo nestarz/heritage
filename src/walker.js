@@ -1,6 +1,6 @@
 import acorn from "acorn";
 
-const isNode = (node) => typeof node.type === "string";
+const isNode = (node) => node && typeof node.type === "string";
 
 const getChilds = (node) =>
   Object.keys(node)
